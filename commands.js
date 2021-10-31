@@ -1,5 +1,8 @@
 #!/usr/bin/env node
+const bcrypt = require("bcrypt");
 const program = require("commander");
+const path = require("path");
+const fs = require("fs");
 const {
   login,
   startDay,
@@ -10,7 +13,7 @@ const {
   pushLog,
 } = require("./index");
 
-program.version("1.0.0").description("Memories of mine");
+program.version("1.0.0").description("Memory Stack");
 
 //login
 program
@@ -18,7 +21,7 @@ program
   .description(
     "Create an account on memoriesofmine.com and use the credentials to login"
   )
-  .action((username, password) => {
+  .action(async (username, password) => {
     login(username, password);
   });
 
@@ -66,7 +69,7 @@ program
 program
   .command("log <text>")
   .description("How are you feeling right now? What are you upto? What's up?")
-  .action((text) => {
+  .action(async (text) => {
     pushLog(text);
   });
 
