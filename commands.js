@@ -3,50 +3,71 @@ const bcrypt = require("bcrypt");
 const program = require("commander");
 const path = require("path");
 const fs = require("fs");
+var inquirer = require("inquirer");
+
 const {
   login,
-  startDay,
   logout,
   fetchLogs,
-  fetchRank,
   changeAbout,
+  isLoggedIn,
   pushLog,
 } = require("./index");
 
-program.version("1.0.0").description("Memory Stack");
+program.version("1.0.1").description("Memory Stack");
 
 //login
 program
-  .command("login <username> <password>")
+  .command("login")
   .description(
     "Create an account on memoriesofmine.com and use the credentials to login"
   )
-  .action(async (username, password) => {
-    login(username, password);
+  .action(async () => {
+    inquirer
+      .prompt([
+        {
+          name: "username",
+          prefix: "$",
+          message: "Enter your username",
+          type: "input",
+        },
+        {
+          name: "password",
+          prefix: "$",
+          message: "Enter your password",
+          type: "password",
+        },
+      ])
+      .then((input) => {
+        login(input.username, input.password);
+      })
+      .catch((error) => {
+        if (error.isTtyError) {
+          // Prompt couldn't be rendered in the current environment
+        } else {
+          // Something else went wrong
+        }
+      });
   });
 
 //logout
 program
   .command("logout")
   .description("Logout current user")
-  .action(() => {
-    logout();
-  });
-
-//startDay
-program
-  .command("startday <text>")
-  .description("Your headline for today")
-  .action((thought) => {
-    startDay(thought);
+  .action(async () => {
+    const isLoggedInVar = await isLoggedIn();
+    if (isLoggedInVar) logout();
+    else console.log("Please login first.");
   });
 
 //fetchLogs
 program
   .command("logs")
   .description("Fetch all the logs you've posted today")
-  .action(() => {
-    fetchLogs();
+  .action(async () => {
+    const isLoggedInVar = await isLoggedIn();
+    if (isLoggedInVar) fetchLogs();
+    else console.log("Please login first.");
   });
 
 //fetchRank
@@ -61,8 +82,10 @@ program
 program
   .command("about <text>")
   .description("Change your profile's about")
-  .action((text) => {
-    changeAbout(text);
+  .action(async (text) => {
+    const isLoggedInVar = await isLoggedIn();
+    if (isLoggedInVar) changeAbout(text);
+    else console.log("Please login first.");
   });
 
 //pushLog
@@ -70,7 +93,9 @@ program
   .command("log <text>")
   .description("How are you feeling right now? What are you upto? What's up?")
   .action(async (text) => {
-    pushLog(text);
+    const isLoggedInVar = await isLoggedIn();
+    if (isLoggedInVar) pushLog(text);
+    else console.log("Please login first.");
   });
 
 program.parse(process.argv);
