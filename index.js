@@ -1,18 +1,55 @@
 const fs = require("fs");
 const bcrypt = require("bcrypt");
 var inquirer = require("inquirer");
+const path = require("path");
+const homedir = require("os").homedir();
+const folderDirectory = path.join(homedir, ".memory-stack");
+const dirr = path.join(folderDirectory, "credentials.json");
 
 const {
   postRequest,
   postRequestSecure,
   getRequestSecure,
 } = require("./data/remote/api");
-const path = require("path");
 
 function callback(err) {}
 
+const createDirectory = async () => {
+  fs.access(folderDirectory, function (error) {
+    if (error) {
+      fs.mkdir(folderDirectory, callback);
+    }
+
+    wipeData();
+  });
+};
+
+const wipeData = async () => {
+  fs.writeFile(dirr, "", "utf8", callback);
+};
+
+const writeCredentials = async (content) => {
+  fs.writeFile(dirr, JSON.stringify(content), "utf8", callback);
+};
+
+const readCredentials = async () => {
+  const toReturn = await JSON.parse(fs.readFileSync(dirr, "utf8"));
+  return toReturn;
+};
+
+const readJWT = async () => {
+  var jwt = await JSON.parse(fs.readFileSync(dirr, "utf8"))["jwt"];
+  return jwt;
+};
+
+const readDate = async () => {
+  var thoughtDate = await JSON.parse(fs.readFileSync(dirr, "utf8"))[
+    "thoughtDate"
+  ];
+  return thoughtDate;
+};
+
 const isLoggedIn = async () => {
-  var dirr = path.join(__dirname, "data/local", "credentials.json");
   try {
     JSON.parse(fs.readFileSync(dirr, "utf8"))["jwt"];
     return true;
@@ -22,6 +59,8 @@ const isLoggedIn = async () => {
 };
 
 const login = async (username, password) => {
+  createDirectory();
+
   var res = await postRequest("login", {
     username: username,
     password: password,
@@ -38,9 +77,7 @@ const login = async (username, password) => {
       thoughtDate: "0",
       jwt: jwt,
     };
-    var dirr = path.join(__dirname, "data/local", "credentials.json");
-
-    fs.writeFile(dirr, JSON.stringify(toWrite), "utf8", callback);
+    writeCredentials(toWrite);
   } else {
     console.log(message);
   }
@@ -48,14 +85,12 @@ const login = async (username, password) => {
 
 const logout = () => {
   //on successful logout
-  var dirr = path.join(__dirname, "data/local", "credentials.json");
   console.log("Logout successful!");
-  fs.writeFile(dirr, "", "utf8", callback);
+  wipeData();
 };
 const startDay = async () => {
   const today = new Date();
-  var dirr = await path.join(__dirname, "data/local", "credentials.json");
-  var jwt = JSON.parse(fs.readFileSync(dirr, "utf8"))["jwt"];
+  var jwt = await readJWT();
   await inquirer
     .prompt([
       {
@@ -66,7 +101,7 @@ const startDay = async () => {
       },
     ])
     .then((input) => {
-      console.log(input.thought);
+      // console.log(input.thought);
       postRequestSecure("setThought", { thought: input.thought }, jwt);
     })
     .catch((error) => {
@@ -77,14 +112,13 @@ const startDay = async () => {
       }
     });
 
-  var toWrite = await JSON.parse(fs.readFileSync(dirr, "utf8"));
+  var toWrite = await readCredentials();
   toWrite["thoughtDate"] = today.getDate();
-  fs.writeFile(dirr, JSON.stringify(toWrite), "utf8", callback);
+  writeCredentials(toWrite);
 };
 
 const fetchLogs = async () => {
-  var dirr = await path.join(__dirname, "data/local", "credentials.json");
-  var jwt = JSON.parse(fs.readFileSync(dirr, "utf8"))["jwt"];
+  var jwt = await readJWT();
   var res = await postRequestSecure("displayLogs", {}, jwt);
   res = res.data;
 
@@ -121,15 +155,10 @@ const fetchRank = () => {};
 const changeAbout = (text) => {};
 
 const pushLog = async (log) => {
-  var dirr = path.join(__dirname, "data/local", "credentials.json");
-  var jwt = JSON.parse(fs.readFileSync(dirr, "utf8"))["jwt"];
+  var jwt = await readJWT();
   var today = new Date();
 
-  if (
-    (await JSON.parse(fs.readFileSync(dirr, "utf8"))["thoughtDate"]) !=
-    today.getDate()
-  )
-    await startDay();
+  if ((await readDate()) != today.getDate()) await startDay();
   var res = await postRequestSecure(
     "createLog",
     {
