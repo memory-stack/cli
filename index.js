@@ -54,8 +54,8 @@ const logout = () => {
 };
 const startDay = async () => {
   const today = new Date();
-  var dirr = path.join(__dirname, "data/local", "credentials.json");
-
+  var dirr = await path.join(__dirname, "data/local", "credentials.json");
+  var jwt = JSON.parse(fs.readFileSync(dirr, "utf8"))["jwt"];
   await inquirer
     .prompt([
       {
@@ -66,7 +66,8 @@ const startDay = async () => {
       },
     ])
     .then((input) => {
-      console(input.thought);
+      console.log(input.thought);
+      postRequestSecure("setThought", { thought: input.thought }, jwt);
     })
     .catch((error) => {
       if (error.isTtyError) {
