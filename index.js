@@ -96,7 +96,7 @@ const startDay = async () => {
       {
         name: "thought",
         prefix: "$",
-        message: "What's the heading of today? (in double quotes)",
+        message: "What's the heading of today?",
         type: "input",
       },
     ])
