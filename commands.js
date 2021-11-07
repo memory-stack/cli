@@ -14,7 +14,7 @@ const {
   pushLog,
 } = require("./index");
 
-program.version("1.0.2").description("Memory Stack");
+program.version("1.0.3").description("Memory Stack");
 
 //login
 program
