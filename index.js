@@ -150,7 +150,6 @@ const fetchLogs = async () => {
   }
   console.log();
 };
-const fetchRank = () => {};
 
 const changeAbout = (text) => {};
 
