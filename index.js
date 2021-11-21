@@ -119,8 +119,8 @@ const startDay = async () => {
 
 const fetchLogs = async () => {
   var jwt = await readJWT();
-  var res = await postRequestSecure('displayLogs', {}, jwt);
-  res = res.data;
+  var res = await getRequestSecure('todaysLogs', jwt);
+  res = res.data.logs;
 
   var nowDate = new Date();
   var currentDate = nowDate.toDateString();
@@ -129,10 +129,10 @@ const fetchLogs = async () => {
   console.log(currentDate);
 
   for (const singleLog of res) {
-    var logDateTime = singleLog['timestamp'];
+    var logDateTime = singleLog['createdAt'];
     // console.log(Date(logDateTime) - Date(nowDate));
 
-    var log = singleLog['logs'];
+    var log = singleLog['logMessage'];
     var dateParsed = new Date(logDateTime);
     var logHour = dateParsed.getHours();
     var logMinute = dateParsed.getMinutes();
