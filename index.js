@@ -65,10 +65,11 @@ const login = async (username, password) => {
     username: username,
     password: password,
   });
-  verdict = res.data.result;
+  verdict = res.data.success;
   message = res.data.message;
+  error = res.data.error;
 
-  if (verdict == 'true') {
+  if (verdict == true) {
     jwt = message;
     console.log('Login successful!');
 
@@ -79,7 +80,7 @@ const login = async (username, password) => {
     };
     writeCredentials(toWrite);
   } else {
-    console.log(message);
+    console.log(error);
   }
 };
 
