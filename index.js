@@ -1,16 +1,15 @@
-const fs = require('fs');
-const bcrypt = require('bcrypt');
-var inquirer = require('inquirer');
-const path = require('path');
-const homedir = require('os').homedir();
-const folderDirectory = path.join(homedir, '.memory-stack');
-const dirr = path.join(folderDirectory, 'credentials.json');
+const fs = require("fs");
+var inquirer = require("inquirer");
+const path = require("path");
+const homedir = require("os").homedir();
+const folderDirectory = path.join(homedir, ".memory-stack");
+const dirr = path.join(folderDirectory, "credentials.json");
 
 const {
   postRequest,
   postRequestSecure,
   getRequestSecure,
-} = require('./data/remote/api');
+} = require("./data/remote/api");
 
 function callback(err) {}
 
@@ -25,33 +24,33 @@ const createDirectory = async () => {
 };
 
 const wipeData = async () => {
-  fs.writeFile(dirr, '', 'utf8', callback);
+  fs.writeFile(dirr, "", "utf8", callback);
 };
 
 const writeCredentials = async (content) => {
-  fs.writeFile(dirr, JSON.stringify(content), 'utf8', callback);
+  fs.writeFile(dirr, JSON.stringify(content), "utf8", callback);
 };
 
 const readCredentials = async () => {
-  const toReturn = await JSON.parse(fs.readFileSync(dirr, 'utf8'));
+  const toReturn = await JSON.parse(fs.readFileSync(dirr, "utf8"));
   return toReturn;
 };
 
 const readJWT = async () => {
-  var jwt = await JSON.parse(fs.readFileSync(dirr, 'utf8'))['jwt'];
+  var jwt = await JSON.parse(fs.readFileSync(dirr, "utf8"))["jwt"];
   return jwt;
 };
 
 const readDate = async () => {
-  var thoughtDate = await JSON.parse(fs.readFileSync(dirr, 'utf8'))[
-    'thoughtDate'
+  var thoughtDate = await JSON.parse(fs.readFileSync(dirr, "utf8"))[
+    "thoughtDate"
   ];
   return thoughtDate;
 };
 
 const isLoggedIn = async () => {
   try {
-    JSON.parse(fs.readFileSync(dirr, 'utf8'))['jwt'];
+    JSON.parse(fs.readFileSync(dirr, "utf8"))["jwt"];
     return true;
   } catch (error) {
     return false;
@@ -61,7 +60,7 @@ const isLoggedIn = async () => {
 const login = async (username, password) => {
   createDirectory();
 
-  var res = await postRequest('login', {
+  var res = await postRequest("login", {
     username: username,
     password: password,
   });
@@ -71,11 +70,11 @@ const login = async (username, password) => {
 
   if (verdict == true) {
     jwt = message;
-    console.log('Login successful!');
+    console.log("Login successful!");
 
     //on successful login
     const toWrite = {
-      thoughtDate: '0',
+      thoughtDate: "0",
       jwt: jwt,
     };
     writeCredentials(toWrite);
@@ -86,7 +85,7 @@ const login = async (username, password) => {
 
 const logout = () => {
   //on successful logout
-  console.log('Logout successful!');
+  console.log("Logout successful!");
   wipeData();
 };
 const startDay = async () => {
@@ -95,15 +94,15 @@ const startDay = async () => {
   await inquirer
     .prompt([
       {
-        name: 'thought',
-        prefix: '$',
+        name: "thought",
+        prefix: "$",
         message: "What's the heading of today?",
-        type: 'input',
+        type: "input",
       },
     ])
     .then((input) => {
       // console.log(input.thought);
-      postRequestSecure('setThought', { thought: input.thought }, jwt);
+      postRequestSecure("setThought", { thought: input.thought }, jwt);
     })
     .catch((error) => {
       if (error.isTtyError) {
@@ -114,13 +113,13 @@ const startDay = async () => {
     });
 
   var toWrite = await readCredentials();
-  toWrite['thoughtDate'] = today.getDate();
+  toWrite["thoughtDate"] = today.getDate();
   writeCredentials(toWrite);
 };
 
 const fetchLogs = async () => {
   var jwt = await readJWT();
-  var res = await getRequestSecure('todaysLogs', jwt);
+  var res = await getRequestSecure("todaysLogs", jwt);
   res = res.data.logs;
 
   var nowDate = new Date();
@@ -130,18 +129,18 @@ const fetchLogs = async () => {
   console.log(currentDate);
 
   for (const singleLog of res) {
-    var logDateTime = singleLog['createdAt'];
+    var logDateTime = singleLog["createdAt"];
     // console.log(Date(logDateTime) - Date(nowDate));
 
-    var log = singleLog['logMessage'];
+    var log = singleLog["logMessage"];
     var dateParsed = new Date(logDateTime);
     var logHour = dateParsed.getHours();
     var logMinute = dateParsed.getMinutes();
     var logSecond = dateParsed.getSeconds();
 
-    if (logHour < 10) logHour = '0' + logHour.toString();
-    if (logMinute < 10) logMinute = '0' + logMinute.toString();
-    if (logSecond < 10) logSecond = '0' + logSecond.toString();
+    if (logHour < 10) logHour = "0" + logHour.toString();
+    if (logMinute < 10) logMinute = "0" + logMinute.toString();
+    if (logSecond < 10) logSecond = "0" + logSecond.toString();
 
     logHour = logHour.toString();
     logMinute = logMinute.toString();
@@ -154,13 +153,13 @@ const fetchLogs = async () => {
 
 const displayAbout = async () => {
   var jwt = await readJWT();
-  var res = await getRequestSecure('about', jwt);
+  var res = await getRequestSecure("about", jwt);
   console.log(res.data.about);
 };
 
 const changeAbout = async (text) => {
   var jwt = await readJWT();
-  var res = await postRequestSecure('setAbout', { about: text }, jwt).catch(
+  var res = await postRequestSecure("setAbout", { about: text }, jwt).catch(
     (error) => {
       console.log(error);
     }
@@ -172,16 +171,19 @@ const changeAbout = async (text) => {
 const pushLog = async (log) => {
   var jwt = await readJWT();
   var today = new Date();
-
-  if ((await readDate()) != today.getDate()) await startDay();
+  var time = today.toLocaleTimeString("en-GB", { hour12: true });
+  var timeArray = time.split(":");
+  if (timeArray[0] < 10) time = "0" + time;
   var res = await postRequestSecure(
-    'createLog',
+    "createLog",
     {
       text: log,
+      date: today.toLocaleDateString("en-GB"),
+      time: time,
     },
     jwt
   ).catch((error) => {
-    console.log('error');
+    console.log("error");
   });
   let message = res.data.message;
   let logNumber = res.data.logNumber;

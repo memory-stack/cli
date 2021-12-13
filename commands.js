@@ -1,9 +1,6 @@
 #!/usr/bin/env node
-const bcrypt = require('bcrypt');
-const program = require('commander');
-const path = require('path');
-const fs = require('fs');
-var inquirer = require('inquirer');
+const program = require("commander");
+var inquirer = require("inquirer");
 
 const {
   login,
@@ -13,15 +10,15 @@ const {
   isLoggedIn,
   pushLog,
   displayAbout,
-} = require('./index');
+} = require("./index");
 
-program.version('1.0.3').description('Memory Stack');
+program.version("1.0.5").description("Memory Stack");
 
 //login
 program
-  .command('login')
+  .command("login")
   .description(
-    'Create an account on memoriesofmine.com and use the credentials to login'
+    "Create an account on memorystack.live/signup and use the credentials to login"
   )
   .action(async () => {
     const verdict = await isLoggedIn();
@@ -29,16 +26,16 @@ program
       inquirer
         .prompt([
           {
-            name: 'username',
-            prefix: '$',
-            message: 'Enter your username',
-            type: 'input',
+            name: "username",
+            prefix: "$",
+            message: "Enter your username",
+            type: "input",
           },
           {
-            name: 'password',
-            prefix: '$',
-            message: 'Enter your password',
-            type: 'password',
+            name: "password",
+            prefix: "$",
+            message: "Enter your password",
+            type: "password",
           },
         ])
         .then((input) => {
@@ -51,57 +48,57 @@ program
             // Something else went wrong
           }
         });
-    else console.log('User is already logged in. Please logout to continue.');
+    else console.log("User is already logged in. Please logout to continue.");
   });
 
 //logout
 program
-  .command('logout')
-  .description('Logout current user')
+  .command("logout")
+  .description("Logout current user")
   .action(async () => {
     const isLoggedInVar = await isLoggedIn();
     if (isLoggedInVar) logout();
-    else console.log('Please login first.');
+    else console.log("Please login first.");
   });
 
 //fetchLogs
 program
-  .command('logs')
+  .command("logs")
   .description("Fetch all the logs you've posted today")
   .action(async () => {
     const isLoggedInVar = await isLoggedIn();
     if (isLoggedInVar) fetchLogs();
-    else console.log('Please login first.');
+    else console.log("Please login first.");
   });
 
 //pushLog
 program
-  .command('log <text>')
+  .command("log <text>")
   .description("How are you feeling right now? What are you upto? What's up?")
   .action(async (text) => {
     const isLoggedInVar = await isLoggedIn();
     if (isLoggedInVar) pushLog(text);
-    else console.log('Please login first.');
+    else console.log("Please login first.");
   });
 
 //changeAbout
 program
-  .command('setbio <text>')
-  .description('Change your bio')
+  .command("setbio <text>")
+  .description("Change your bio")
   .action(async (text) => {
     const isLoggedInVar = await isLoggedIn();
     if (isLoggedInVar) changeAbout(text);
-    else console.log('Please login first.');
+    else console.log("Please login first.");
   });
 
 //displayAbout
 program
-  .command('bio')
-  .description('Displays your current bio')
+  .command("bio")
+  .description("Displays your current bio")
   .action(async () => {
     const isLoggedInVar = await isLoggedIn();
     if (isLoggedInVar) displayAbout();
-    else console.log('Please login first.');
+    else console.log("Please login first.");
   });
 
 program.parse(process.argv);
