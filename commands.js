@@ -12,7 +12,7 @@ const {
   displayAbout,
 } = require("./index");
 
-program.version("1.0.5").description("Memory Stack");
+program.version("1.0.6").description("Memory Stack");
 
 //login
 program
