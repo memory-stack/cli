@@ -1,8 +1,5 @@
-const axios = require('axios');
-const baseUri = 'https://api-memory-stack.herokuapp.com/api/';
-//const baseUri = 'http://192.168.0.106:3000/api/';
-const path = require('path');
-const fs = require('fs');
+const axios = require("axios");
+const baseUri = "https://api-memory-stack.herokuapp.com/api/";
 
 async function postRequest(endpoint, data) {
   return axios.post(baseUri + endpoint, data);
