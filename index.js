@@ -173,7 +173,11 @@ const pushLog = async (log) => {
   var today = new Date();
   var time = today.toLocaleTimeString('en-GB', { hour12: true });
   var timeArray = time.split(':');
-  if (timeArray[0] < 10) time = '0' + time;
+  if (timeArray[0] === '0' && timeArray[2].slice(-2) === 'pm') {
+    time = '12' + time.slice(1);
+  } else if (timeArray[0] < 10) {
+    time = '0' + time;
+  }
   var res = await postRequestSecure(
     'createLog',
     {
