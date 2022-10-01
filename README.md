@@ -8,7 +8,7 @@
 - Open your terminal
 - Log your thought
 - See your log being read by the world
-- ✨Magic ✨
+- ✨ Magic ✨
  
 ## Video Explaination
 -    [What is Memory stack?](https://youtu.be/4H2HqpAkWik)
