@@ -1,3 +1,4 @@
+//log model
 const Log = {
   timestamp: { type: Date },
   text: { type: String },
